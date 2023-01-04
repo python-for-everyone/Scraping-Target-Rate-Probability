@@ -1,0 +1,32 @@
+from selenium import webdriver
+import urllib.request
+import time
+import pandas as pd
+
+options = webdriver.ChromeOptions()
+
+prefs = {"download.default_directory": "/Users/Linus/Downloads/Programming"} # Change this directory "/Users/Linus/Downloads/Programming" to your own directory (make sure you create this directory first)
+
+options.add_experimental_option("prefs",prefs)
+
+driver = webdriver.Chrome(executable_path=ChromeDriverManager().install(),chrome_options=options)
+
+driver.get('https://www.cmegroup.com/markets/interest-rates/cme-fedwatch-tool.html?redirect=/trading/interest-rates/countdown-to-fomc.html')
+
+driver.execute_script("window.scrollTo(0,800)")
+
+driver.switch_to.frame('cmeIframe-jtxelq2f')
+time.sleep(5)
+driver.find_element(By.XPATH,"/html/body/form/div[3]/div[2]/div[3]/div[1]/div/div/div[1]/div/div[3]/div[3]/div/div/ul/li[8]/a").click()
+time.sleep(5)
+driver.find_element(By.ID,"ctl00_MainContent_ucViewControl_IntegratedFedWatchTool_lbDownloads").click()
+time.sleep(10)
+
+downloadcsv= driver.find_element(By.CSS_SELECTOR,"#ctl00_MainContent_ucViewControl_IntegratedFedWatchTool_ucd_lvDownloads_ctrl10_hlMeeting")
+href = downloadcsv.get_attribute('href')
+urllib.request.urlretrieve(href, "/Users/Linus/Downloads/Programming/latest.csv") # specify the location where you want to save the csv file. latest.csv is a filename I chose, you can choose whatever you like.
+
+df = pd.read_csv("/Users/Linus/Downloads/Programming/latest.csv") #use the csv file location from above to turn it into a dataframe
+print(df.head()) # this will print the first couple of rows of the dataframe to see, if it worked
+
+print('Job Finished')
